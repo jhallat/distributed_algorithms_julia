@@ -1,4 +1,5 @@
 using Random
+using Test
 
 struct Node
     value::Int64
@@ -82,8 +83,38 @@ function generateNodeHashes(address::String, number::Int64)
 
 end  
 
+function getConsistentHash(root::Union{Node,Nothing}, value::Int64, lowest::Int64, answer::Int64 = -1)
+
+    newAnswer::Int64 = answer
+    if root !== nothing
+        if value == root.value  
+            newAnswer = value
+        elseif value < root.value 
+            if root.value < answer || answer == -1
+                newAnswer = getConsistentHash(root.left, value, lowest, root.value) 
+            else
+                newAnswer = getConsistentHash(root.left, value, lowest, newAnswer)
+            end 
+        else
+            newAnswer = getConsistentHash(root.right, value, lowest, newAnswer)
+        end    
+    end 
+    if newAnswer == -1
+        return lowest
+    else 
+        return newAnswer
+    end           
+end    
+
 nodes = generateNodeHashes("127.0.0.1:8080", 10)
 nodes = append!(nodes, generateNodeHashes("127.0.0.1:8081", 10))
 nodes = append!(nodes, generateNodeHashes("127.0.0.1:8082", 10))
 nodes = mergeSort(nodes)
 println(createTree(nodes))
+testNode = createTree([10,20,30,40,50,60,70,80,90,100])
+@test getConsistentHash(testNode, 42, 10) == 50
+@test getConsistentHash(testNode, 5, 10) == 10
+@test getConsistentHash(testNode, 10, 10) == 10
+@test getConsistentHash(testNode, 110, 10) == 10
+@test getConsistentHash(testNode, 80, 10) == 80
+@test getConsistentHash(testNode, 57, 10) == 60

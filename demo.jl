@@ -1,3 +1,4 @@
+using Random
 
 struct Node
     value::Int64
@@ -69,9 +70,20 @@ function mergeSort(values::Array{Int64})
     end   
 end  
 
-#println(simpleHash("This is a test"))
-#println(simpleHash("This is not a test"))
-#println(simpleHash("This could be a test"))
-values = [100,50,60,20,10,30,90,70,80,40]
-values = mergeSort(values)
-println(createTree(values))
+function generateNodeHashes(address::String, number::Int64)
+
+    nodes = Int64[]
+    for i = 1:number
+        node = string(address, randstring())
+        nodeHash = simpleHash(node)
+        append!(nodes, nodeHash)
+    end  
+    nodes
+
+end  
+
+nodes = generateNodeHashes("127.0.0.1:8080", 10)
+nodes = append!(nodes, generateNodeHashes("127.0.0.1:8081", 10))
+nodes = append!(nodes, generateNodeHashes("127.0.0.1:8082", 10))
+nodes = mergeSort(nodes)
+println(createTree(nodes))
